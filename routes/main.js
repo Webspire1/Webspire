@@ -4,7 +4,8 @@ module.exports = function(app, viewsDir) {
     app.get("/", function(req, res){
         res.render(viewsDir + "index.html", { 
             title: 'Webspire - Index',
-            inner: false
+            inner: false,
+            contact_address: 'webspire-admins@hash.fyi'
         });
     });
 
