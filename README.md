@@ -8,7 +8,7 @@ Run `npm i -g nodemon` to install nodemon to your system.
 Run `npm install` to install all dependencies.
 
 ## Start Server
-To start server, run `npm start`.
+To start server, run `npm run server`.
 
 ## Navigation
 If you host using your local env, visit http://localhost:8089/ to view the website.
