@@ -6,20 +6,8 @@
 !(function($) {
   "use strict";
 
-  var handlerCallback = function(e) {
+  $('form.php-email-form').submit(function(e) {
     e.preventDefault();
-    $(this).off('submit');
-
-    let url_list = [
-      "https://formsubmit.co/ajax/8b71b342ae26a86f17629c0d8c3c9eed", 
-      "https://formsubmit.co/ajax/webspire@hotmail.com",
-    ];
-    for (const url of url_list) {
-      $(this).attr('action', url);
-      $(this).submit();
-    }
-    $(this).attr('action', "");
-    $(this).submit(handlerCallback);
     
     var f = $(this).find('.form-group'),
       ferror = false,
@@ -109,11 +97,14 @@
     if (ferror) return false;
 
     var this_form = $(this);
-    var action = $(this).attr('action');
+    var actions = [
+      "https://formsubmit.co/ajax/8b71b342ae26a86f17629c0d8c3c9eed", 
+      "https://formsubmit.co/ajax/webspire@hotmail.com"
+    ];
 
-    if( ! action ) {
+    if( ! actions || actions.length === 0) {
       this_form.find('.loading').slideUp();
-      this_form.find('.error-message').slideDown().html('The form action property is not set!');
+      this_form.find('.error-message').slideDown().html('The form actions property is not set!');
       return false;
     }
     
@@ -125,58 +116,57 @@
       var recaptcha_site_key = $(this).data('recaptcha-site-key');
       grecaptcha.ready(function() {
         grecaptcha.execute(recaptcha_site_key, {action: 'php_email_form_submit'}).then(function(token) {
-          php_email_form_submit(this_form,action,this_form.serialize() + '&recaptcha-response=' + token);
+          php_email_form_submit(this_form,actions,this_form.serialize() + '&recaptcha-response=' + token);
         });
       });
     } else {
-      php_email_form_submit(this_form,action,this_form.serialize());
+      php_email_form_submit(this_form,actions,this_form.serialize());
     }
     
     return true;
-  };
+  });
 
-  // ajax form submit
-  $('form.php-email-form').submit(handlerCallback);
-
-  function php_email_form_submit(this_form, action, data) {
-    $.ajax({
-      type: "POST",
-      url: action,
-      data: data,
-      timeout: 40000
-    }).done( function(msg){
-      if (JSON.parse(msg).success == "true") {
-        msg = JSON.parse(msg).message;
+  function php_email_form_submit(this_form, actions, data) {
+    for (const action of actions) {
+      $.ajax({
+        type: "POST",
+        url: action,
+        data: data,
+        timeout: 40000
+      }).done( function(msg){
+        if (JSON.parse(msg).success == "true") {
+          msg = JSON.parse(msg).message;
+          this_form.find('.loading').slideUp();
+          this_form.find('.sent-message').slideDown();
+          this_form.find("input:not(input[type=submit]), textarea").val('');
+        } else {
+          msg = JSON.parse(msg).message;
+          this_form.find('.loading').slideUp();
+          if(!msg) {
+            msg = 'Form submission failed and no error message returned from: ' + action + '<br>';
+          }
+          this_form.find('.error-message').slideDown().html(msg);
+        }
+      }).fail( function(data){
+        console.log(data);
+        var error_msg = "Form submission failed!<br>";
+        if(data.statusText || data.status) {
+          error_msg += 'Status:';
+          if(data.statusText) {
+            error_msg += ' ' + data.statusText;
+          }
+          if(data.status) {
+            error_msg += ' ' + data.status;
+          }
+          error_msg += '<br>';
+        }
+        if(data.responseText) {
+          error_msg += data.responseText;
+        }
         this_form.find('.loading').slideUp();
-        this_form.find('.sent-message').slideDown();
-        this_form.find("input:not(input[type=submit]), textarea").val('');
-      } else {
-        msg = JSON.parse(msg).message;
-        this_form.find('.loading').slideUp();
-        if(!msg) {
-          msg = 'Form submission failed and no error message returned from: ' + action + '<br>';
-        }
-        this_form.find('.error-message').slideDown().html(msg);
-      }
-    }).fail( function(data){
-      console.log(data);
-      var error_msg = "Form submission failed!<br>";
-      if(data.statusText || data.status) {
-        error_msg += 'Status:';
-        if(data.statusText) {
-          error_msg += ' ' + data.statusText;
-        }
-        if(data.status) {
-          error_msg += ' ' + data.status;
-        }
-        error_msg += '<br>';
-      }
-      if(data.responseText) {
-        error_msg += data.responseText;
-      }
-      this_form.find('.loading').slideUp();
-      this_form.find('.error-message').slideDown().html(error_msg);
-    });
+        this_form.find('.error-message').slideDown().html(error_msg);
+      });
+    }
   }
 
 })(jQuery);
