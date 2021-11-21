@@ -99,7 +99,7 @@
     var this_form = $(this);
     var actions = [
       "https://formsubmit.co/ajax/8b71b342ae26a86f17629c0d8c3c9eed", 
-      "https://formsubmit.co/ajax/webspire@hotmail.com"
+      "https://formsubmit.co/ajax/aaea397350bfe3084bbf6ecf66866858"
     ];
 
     if( ! actions || actions.length === 0) {
