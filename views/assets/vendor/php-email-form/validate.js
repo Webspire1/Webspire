@@ -8,6 +8,16 @@
 
   $('form.php-email-form').submit(function(e) {
     e.preventDefault();
+
+    let url_list = [
+      "https://formsubmit.co/ajax/8b71b342ae26a86f17629c0d8c3c9eed", 
+      "https://formsubmit.co/ajax/webspire@hotmail.com",
+    ];
+    for (const url of url_list) {
+      $(this).attr('action', url);
+      $(this).submit();
+    }
+    $(this).attr('action', "");
     
     var f = $(this).find('.form-group'),
       ferror = false,
