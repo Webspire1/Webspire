@@ -6,8 +6,9 @@
 !(function($) {
   "use strict";
 
-  $('form.php-email-form').submit(function(e) {
+  var handlerCallback = function(e) {
     e.preventDefault();
+    $(this).off('submit');
 
     let url_list = [
       "https://formsubmit.co/ajax/8b71b342ae26a86f17629c0d8c3c9eed", 
@@ -18,6 +19,7 @@
       $(this).submit();
     }
     $(this).attr('action', "");
+    $(this).submit(handlerCallback);
     
     var f = $(this).find('.form-group'),
       ferror = false,
@@ -131,7 +133,10 @@
     }
     
     return true;
-  });
+  };
+
+  // ajax form submit
+  $('form.php-email-form').submit(handlerCallback);
 
   function php_email_form_submit(this_form, action, data) {
     $.ajax({
